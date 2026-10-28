@@ -1,0 +1,22 @@
+# Baut den Windows-Installer und veröffentlicht ihn als GitHub-Release (für den automatischen Updater der App).
+# Auslöser: neue Version in package.json auf main, oder manuell (Actions → Release → Run workflow).
+name: Release
+on:
+  push:
+    branches: [main]
+    paths: ['package.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

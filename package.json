@@ -1,0 +1,56 @@
+{
+  "name": "bauview-desktop",
+  "version": "1.6.1",
+  "description": "BauView – Bau-Management-Werkzeug (Desktop-Version)",
+  "main": "src/main.js",
+  "author": "Helbling Architektur",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "build": {
+    "appId": "ch.helbling-architektur.bauview",
+    "productName": "BauView",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "app/**/*",
+      "build/icon.ico"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BauView"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Bauview",
+      "repo": "bauview-desktop-releases",
+      "releaseType": "release"
+    }
+  }
+}
