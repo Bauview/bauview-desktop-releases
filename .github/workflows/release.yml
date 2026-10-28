@@ -4,7 +4,7 @@ name: Release
 on:
   push:
     branches: [main]
-    paths: ['package.json']
+    paths: ['package.json', '.github/workflows/release.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -17,6 +17,14 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - run: npx electron-builder --win --publish always
+      - name: Installer bauen und veröffentlichen
+        shell: bash
+        run: npx electron-builder --win --publish always 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Protokoll bei Fehler sichern (Branch ci-log)
+        if: failure()
+        shell: bash
+        run: |
+          git config user.name "BauView CI"; git config user.email "ci@bauview.invalid"
+          git checkout --orphan ci-log; git rm -rf --cached . >/dev/null; git add -f build.log; git commit -m "Build-Protokoll $GITHUB_RUN_ID"; git push -f origin ci-log
