@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Automatische Updates (neu)
   checkForUpdates: () => ipcRenderer.invoke('bauview:checkForUpdates'),
   installUpdate: () => ipcRenderer.invoke('bauview:installUpdate'),
+  getUpdateStatus: () => ipcRenderer.invoke('bauview:getUpdateStatus'),
   onUpdateStatus: (callback) => {
     const handler = (event, payload) => callback(payload);
     ipcRenderer.on('bauview:updateStatus', handler);

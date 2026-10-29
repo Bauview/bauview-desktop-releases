@@ -359,11 +359,24 @@ autoUpdater.autoInstallOnAppQuit = true; // falls der Nutzer die App schliesst, 
 
 let _updateCheckInFlight = false;
 
+// Letzter Update-Stand: die Oberfläche fragt ihn beim Start ab (sie hört erst nach Anmeldung/Sync zu
+// und verpasste sonst die Meldungen der ersten Prüfung - Ursache für fehlende Update-Hinweise bis 1.7.1).
+let _lastUpdateStatus = null;
+// Kleines Protokoll im Benutzerordner (%APPDATA%\BauView\update-log.txt) zur Fehlersuche.
+function _updLog(line) {
+  try { fs.appendFileSync(path.join(app.getPath('userData'), 'update-log.txt'), new Date().toISOString() + ' ' + line + '\n'); } catch (e) {}
+}
 function _sendUpdateStatus(payload) {
+  if (payload.state !== 'downloading') _updLog(`[${app.getVersion()}] ${payload.state}${payload.version ? ' ' + payload.version : ''}${payload.message ? ' ' + payload.message : ''}`);
+  if (payload.state !== 'checking' || !_lastUpdateStatus || _lastUpdateStatus.state !== 'downloaded') _lastUpdateStatus = payload;
+  if (payload.state === 'downloaded') {
+    try { if (Notification.isSupported()) new Notification({ title: 'BauView-Update bereit', body: `Version ${payload.version || ''} ist geladen. Wird beim Beenden installiert - oder in BauView unten links "Jetzt installieren".` }).show(); } catch (e) {}
+  }
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('bauview:updateStatus', payload);
   }
 }
+ipcMain.handle('bauview:getUpdateStatus', () => _lastUpdateStatus);
 
 function _checkForUpdates() {
   if (_updateCheckInFlight) return;
