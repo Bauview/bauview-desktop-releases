@@ -17,9 +17,27 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - name: Installer bauen und veröffentlichen
+      # Release zuerst als Entwurf anlegen (verhindert den Wettlauf zweier Uploads, die je ein Release anlegen wollen)
+      - name: Release-Entwurf vorbereiten
         shell: bash
-        run: npx electron-builder --win --publish always 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          echo "VER=$VER" >> $GITHUB_ENV
+          gh release delete "v$VER" -y --cleanup-tag 2>/dev/null || true
+          gh release create "v$VER" --draft --target "$GITHUB_SHA" --title "$VER" --notes "BauView $VER"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Installer bauen und hochladen
+        shell: bash
+        run: npx electron-builder --win --publish always -c.publish.releaseType=draft 2>&1 | tee build.log; exit ${PIPESTATUS[0]}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release veröffentlichen
+        shell: bash
+        run: |
+          gh release view "v$VER" --json assets -q '.assets[].name' | tee -a build.log
+          gh release view "v$VER" --json assets -q '.assets[].name' | grep -q latest.yml
+          gh release edit "v$VER" --draft=false --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Protokoll bei Fehler sichern (Branch ci-log)
