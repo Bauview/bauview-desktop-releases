@@ -355,7 +355,7 @@ ipcMain.handle('bauview:notify', async (event, title, body) => {
 // verfügbarer neuer Version die passende .exe + .blockmap automatisch herunter (generic-Provider,
 // reines HTTPS GET, keine Zugangsdaten nötig).
 autoUpdater.autoDownload = true;       // neue Version im Hintergrund automatisch herunterladen
-autoUpdater.autoInstallOnAppQuit = true; // falls der Nutzer die App schliesst, bevor er "Installieren" klickt
+autoUpdater.autoInstallOnAppQuit = false; // nur per Klick installieren (Serdar, 04.11.2026) – nie still beim Beenden
 
 let _updateCheckInFlight = false;
 
@@ -370,7 +370,7 @@ function _sendUpdateStatus(payload) {
   if (payload.state !== 'downloading') _updLog(`[${app.getVersion()}] ${payload.state}${payload.version ? ' ' + payload.version : ''}${payload.message ? ' ' + payload.message : ''}`);
   if (payload.state !== 'checking' || !_lastUpdateStatus || _lastUpdateStatus.state !== 'downloaded') _lastUpdateStatus = payload;
   if (payload.state === 'downloaded') {
-    try { if (Notification.isSupported()) new Notification({ title: 'BauView-Update bereit', body: `Version ${payload.version || ''} ist geladen. Wird beim Beenden installiert - oder in BauView unten links "Jetzt installieren".` }).show(); } catch (e) {}
+    try { if (Notification.isSupported()) new Notification({ title: 'BauView-Update bereit', body: `Version ${payload.version || ''} ist geladen. Zum Installieren in BauView "Jetzt installieren & neu starten" klicken.` }).show(); } catch (e) {}
   }
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('bauview:updateStatus', payload);
