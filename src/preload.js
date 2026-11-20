@@ -9,6 +9,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('electronAPI', {
   isElectron: true,
   getAppVersion: () => ipcRenderer.invoke('bauview:getAppVersion'),
+  // Zugangsdaten merken (verschlüsselt per safeStorage im Hauptprozess)
+  credSave: (email, pass) => ipcRenderer.invoke('bauview:credSave', email, pass),
+  credLoad: () => ipcRenderer.invoke('bauview:credLoad'),
+  credClear: () => ipcRenderer.invoke('bauview:credClear'),
   // Etappe 2: Plan-Ordner-Anbindung
   chooseFolder: () => ipcRenderer.invoke('bauview:chooseFolder'),
   writeLocalFile: (rootFolder, relPath, base64Data) => ipcRenderer.invoke('bauview:writeLocalFile', rootFolder, relPath, base64Data),

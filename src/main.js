@@ -3,7 +3,7 @@
 // Noch OHNE Plan-Ordner-Anbindung (kommt in Etappe 2) - Ziel dieser Etappe ist ausschliesslich,
 // dass Installation, Start und automatische Updates zuverlässig funktionieren.
 
-const { app, BrowserWindow, Menu, shell, ipcMain, dialog, Notification } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain, dialog, Notification, safeStorage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
@@ -120,6 +120,30 @@ app.on('window-all-closed', () => {
 // damit sie z.B. in den Einstellungen "Desktop-App vX.X" anzeigen kann.
 ipcMain.handle('bauview:getAppVersion', () => app.getVersion());
 ipcMain.handle('bauview:isElectron', () => true);
+
+// --- Zugangsdaten merken (Anmeldung) ---
+// Electron hat keinen eingebauten Passwort-Manager. E-Mail + Passwort werden darum mit
+// safeStorage (Windows: DPAPI, an das Windows-Konto gebunden) verschlüsselt im Benutzerordner
+// abgelegt. Klartext wird nie geschrieben; ohne Verschlüsselung wird nichts gespeichert.
+const _credFile = () => path.join(app.getPath('userData'), 'zugang.bin');
+ipcMain.handle('bauview:credSave', (event, email, pass) => {
+  try {
+    if (!safeStorage.isEncryptionAvailable()) return false;
+    const buf = safeStorage.encryptString(JSON.stringify({ email: String(email || ''), pass: String(pass || '') }));
+    fs.writeFileSync(_credFile(), buf);
+    return true;
+  } catch (e) { console.warn('credSave:', e.message); return false; }
+});
+ipcMain.handle('bauview:credLoad', () => {
+  try {
+    if (!safeStorage.isEncryptionAvailable() || !fs.existsSync(_credFile())) return null;
+    const o = JSON.parse(safeStorage.decryptString(fs.readFileSync(_credFile())));
+    return (o && o.email) ? { email: o.email, pass: o.pass || '' } : null;
+  } catch (e) { console.warn('credLoad:', e.message); return null; }
+});
+ipcMain.handle('bauview:credClear', () => {
+  try { if (fs.existsSync(_credFile())) fs.unlinkSync(_credFile()); return true; } catch (e) { return false; }
+});
 
 // --- Etappe 2: Plan-Ordner-Anbindung ---
 // Entfernt Zeichen, die in Windows-Dateipfaden nicht erlaubt sind bzw. Ausbrüche aus dem
