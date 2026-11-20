@@ -1,6 +1,6 @@
 {
   "name": "bauview-desktop",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "description": "BauView – Bau-Management-Werkzeug (Desktop-Version)",
   "main": "src/main.js",
   "author": "Helbling Architektur",
