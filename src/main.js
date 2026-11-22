@@ -2,6 +2,12 @@
 // Verpackt die bestehende Web-App unverändert als installierbares Windows-Programm.
 // Noch OHNE Plan-Ordner-Anbindung (kommt in Etappe 2) - Ziel dieser Etappe ist ausschliesslich,
 // dass Installation, Start und automatische Updates zuverlässig funktionieren.
+//
+// App-Kennung (package.json > build): "appId" ist frei wählbar, aber "nsis.guid" NIE ändern –
+// sie ist die Installations-Identität in Windows (Registry, Deinstallation, Update-Pfad) und
+// entspricht der GUID der ersten Installationen. Bewusst KEIN app.setAppUserModelId(): die
+// Kennung für Taskleiste/Benachrichtigungen kommt aus der Verknüpfung, mit der BauView
+// gestartet wurde – so funktionieren alte (alte ID) und neue Verknüpfungen gleichermassen.
 
 const { app, BrowserWindow, Menu, shell, ipcMain, dialog, Notification, safeStorage } = require('electron');
 const path = require('path');

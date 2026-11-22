@@ -1,6 +1,6 @@
 {
   "name": "bauview-desktop",
-  "version": "1.15.3",
+  "version": "1.15.4",
   "description": "BauView – Bau-Management-Werkzeug (Desktop-Version)",
   "main": "src/main.js",
   "author": "Serdar Yavuz",
@@ -18,7 +18,7 @@
     "electron-updater": "^6.8.9"
   },
   "build": {
-    "appId": "ch.helbling-architektur.bauview",
+    "appId": "ch.bauview.desktop",
     "productName": "BauView",
     "copyright": "Copyright © 2026 Serdar Yavuz",
     "directories": {
@@ -41,6 +41,7 @@
       "icon": "build/icon.ico"
     },
     "nsis": {
+      "guid": "c7d67ad5-c9e6-5750-a12e-6f45093fe7c3",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
