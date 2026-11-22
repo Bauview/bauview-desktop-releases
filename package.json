@@ -1,9 +1,9 @@
 {
   "name": "bauview-desktop",
-  "version": "1.15.1",
+  "version": "1.15.2",
   "description": "BauView – Bau-Management-Werkzeug (Desktop-Version)",
   "main": "src/main.js",
-  "author": "Helbling Architektur",
+  "author": "Serdar Yavuz",
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
@@ -20,6 +20,7 @@
   "build": {
     "appId": "ch.helbling-architektur.bauview",
     "productName": "BauView",
+    "copyright": "Copyright © 2026 Serdar Yavuz",
     "directories": {
       "output": "dist"
     },
